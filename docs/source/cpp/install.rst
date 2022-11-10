@@ -19,7 +19,7 @@
 Installation
 ============
 
-To build the libraries from source, see :doc:`../contributing`.
+To build the libraries from source, see :doc:`../development/contributing`.
 
 .. _cpp-install-driver-manager:
 
