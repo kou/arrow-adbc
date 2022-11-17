@@ -15,9 +15,17 @@
 # specific language governing permissions and limitations
 # under the License.
 
+# Release artifacts
+adbc-*.tar.gz
+adbc-*.tar.gz.asc
+adbc-*.tar.gz.sha256
+adbc-*.tar.gz.sha512
 apache-rat-*.jar
-arrow-src.tar
-arrow-src.tar.gz
+dev/release/.env
+dev/release/binary/id_rsa
+dev/release/binary/id_rsa.pub
+filtered_rat.txt
+rat.txt
 
 # Compiled source
 *.a
