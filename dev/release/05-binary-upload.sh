@@ -90,6 +90,7 @@ docker_run \
     ARTIFACTS_DIR="${tmp_dir}/artifacts" \
     DRY_RUN=${DRY_RUN:-no} \
     GPG_KEY_ID="${GPG_KEY_ID}" \
+    MOCK_ARTIFACTORY_URL="${MOCK_ARTIFACTORY_URL:=}" \
     RC=${rc_number} \
     STAGING=${STAGING:-no} \
     VERSION=${version}

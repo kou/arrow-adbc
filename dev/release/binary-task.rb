@@ -31,6 +31,20 @@ rescue LoadError
   warn("apt-dists-merge is needed for apt:* tasks")
 end
 
+# Allow passing a mock Artifactory URL
+# With Docker:
+# $ docker run --rm --name artifactory -p 8081:8081 -p 8082:8082 docker.bintray.io/jfrog/artifactory-oss:latest
+# Go to localhost:8082 and log in (admin/password)
+# On the left, create a new repository named "arrow"
+# On the top right, edit user and get your API key
+# Run env MOCK_ARTIFACTORY_URL=http://172.17.0.1:8081 ./dev/release/05-binary-upload.sh
+# N.B. I have to comment out the "X-Artifactory-Last-Modified" below
+if !ENV["MOCK_ARTIFACTORY_URL"].nil? && !ENV["MOCK_ARTIFACTORY_URL"].empty?
+  ARTIFACTORY_URL = ENV["MOCK_ARTIFACTORY_URL"]
+else
+  ARTIFACTORY_URL = "https://apache.jfrog.io"
+end
+
 class BinaryTask
   include Rake::DSL
 
@@ -276,7 +290,7 @@ class BinaryTask
     private def start_http(url, &block)
       http = Net::HTTP.new(url.host, url.port)
       http.set_debug_output($stderr) if ENV["DEBUG"]
-      http.use_ssl = true
+      http.use_ssl = ARTIFACTORY_URL.start_with? "https://"
       if block_given?
         http.start(&block)
       else
@@ -470,14 +484,14 @@ class BinaryTask
 
     private
     def build_url(path)
-      uri_string = "https://apache.jfrog.io/artifactory/arrow"
+      uri_string = "#{ARTIFACTORY_URL}/artifactory/arrow"
       uri_string << "/#{@prefix}" unless @prefix.nil?
       uri_string << "/#{path}"
       URI(uri_string)
     end
 
     def build_api_url(path, parameters)
-      uri_string = "https://apache.jfrog.io/artifactory/api/#{path}"
+      uri_string = "#{ARTIFACTORY_URL}/artifactory/api/#{path}"
       unless parameters.empty?
         uri_string << "?"
         escaped_parameters = parameters.collect do |key, value|
@@ -1969,8 +1983,8 @@ APT::FTPArchive::Release::Description "#{apt_repository_description}";
         suffix << "-staging" if staging?
         puts(<<-SUMMARY)
 Success! The release candidate binaries are available here:
-  https://apache.jfrog.io/artifactory/arrow/adbc/docs#{suffix}-rc/
-  https://apache.jfrog.io/artifactory/arrow/adbc/python#{suffix}-rc/#{full_version}
+  #{ARTIFACTORY_URL}/artifactory/arrow/adbc/docs#{suffix}-rc/
+  #{ARTIFACTORY_URL}/artifactory/arrow/adbc/python#{suffix}-rc/#{full_version}
         SUMMARY
       end
 
@@ -1980,8 +1994,8 @@ Success! The release candidate binaries are available here:
         suffix << "-staging" if staging?
         puts(<<-SUMMARY)
 Success! The release binaries are available here:
-  https://apache.jfrog.io/artifactory/arrow/adbc/docs#{suffix}/
-  https://apache.jfrog.io/artifactory/arrow/adbc/python#{suffix}/#{version}
+  #{ARTIFACTORY_URL}/artifactory/arrow/adbc/docs#{suffix}/
+  #{ARTIFACTORY_URL}/artifactory/arrow/adbc/python#{suffix}/#{version}
         SUMMARY
       end
     end
