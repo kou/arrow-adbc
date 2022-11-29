@@ -33,7 +33,7 @@ main() {
     local -r tag="adbc-${version}"
     local -r rc_branch="release-${version}-rc${rc_number}"
 
-    : ${REPOSITORY:="apache/arrow"}
+    : ${REPOSITORY:="apache/arrow-adbc"}
 
     echo "Waiting for GitHub Actions workflow on ${REPOSITORY}:${rc_branch}"
 
