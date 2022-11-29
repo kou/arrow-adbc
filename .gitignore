@@ -24,7 +24,9 @@ apache-rat-*.jar
 dev/release/.env
 dev/release/binary/id_rsa
 dev/release/binary/id_rsa.pub
+dev/release/binary/tmp
 filtered_rat.txt
+packages/
 rat.txt
 
 # Compiled source
