@@ -48,4 +48,10 @@ update_versions() {
   sed -i -E "s|<adbc.version>.+</adbc.version>|<adbc.version>${version}</adbc.version>|g" pom.xml
   git add "pom.xml" "**/pom.xml"
   popd
+
+  sed -i -E "s/version: '.+'/release = '${version}'/g" "${ADBC_DIR}/glib/meson.build"
+  git add "${ADBC_DIR}/glib/meson.build"
+
+  sed -i -E "s/VERSION = \".+\"/VERSION = \"${version}\"/g" "${ADBC_DIR}/ruby/lib/adbc/version.rb"
+  git add "${ADBC_DIR}/ruby/lib/adbc/version.rb"
 }
