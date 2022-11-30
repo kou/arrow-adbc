@@ -116,9 +116,6 @@ Build source and binaries and submit them
     # Build the source release tarball and create Pull Request with verification tasks
     dev/release/02-source.sh <version> <rc-number>
 
-    # Push the RC branch and tag
-    git push -u --tag apache release-<version>-rc<rc-number>
-
     # Submit binary tasks using crossbow, the command will output the crossbow build id
     dev/release/03-binary-submit.sh <version> <rc-number>
 
