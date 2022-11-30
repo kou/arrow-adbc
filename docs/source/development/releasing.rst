@@ -116,6 +116,9 @@ Build source and binaries and submit them
     # Build the source release tarball and create Pull Request with verification tasks
     dev/release/02-source.sh <version> <rc-number>
 
+    # Push the RC branch and tag
+    git push -u --tag apache release-<version>-rc<rc-number>
+
     # Submit binary tasks using crossbow, the command will output the crossbow build id
     dev/release/03-binary-submit.sh <version> <rc-number>
 
@@ -134,15 +137,18 @@ Build source and binaries and submit them
 
     # Sign and upload the Java artifacts
     #
-    # Note that you need to press the "Close" button manually by Web interfacec
+    # Note that you need to press the "Close" button manually by Web interface
     # after you complete the script:
     #   https://repository.apache.org/#stagingRepositories
     dev/release/06-java-upload.sh <version> <rc-number>
 
+    # Start verifications for binaries and wheels
+    dev/release/07-binary-verify.sh <version> <rc-number>
+
 Verify the Release
 ------------------
 
-.. TODO
+Start the vote thread on dev@arrow.apache.org.
 
 Voting and approval
 ===================
@@ -157,4 +163,96 @@ After the release vote, we must undertake many tasks to update source artifacts,
 
 Be sure to go through on the following checklist:
 
-.. TODO
+.. dropdown:: Close the GitHub project
+   :class-title: sd-fs-5
+   :class-container: sd-shadow-md
+
+   - Open https://github.com/orgs/apache/projects and find the project
+   - Click "..." for the project
+   - Select "Close"
+
+.. dropdown:: Add the new release to the Apache Reporter System
+   :class-title: sd-fs-5
+   :class-container: sd-shadow-md
+
+   Add relevant release data for Arrow to `Apache reporter <https://reporter.apache.org/addrelease.html?arrow>`_.
+
+.. dropdown:: Upload source release artifacts to Subversion
+   :class-title: sd-fs-5
+   :class-container: sd-shadow-md
+
+   A PMC member must commit the source release artifacts to Subversion:
+
+   .. code-block:: Bash
+
+      # dev/release/post-01-upload.sh 0.1.0 0
+      dev/release/post-01-upload.sh <version> <rc>
+
+.. dropdown:: Upload binary release artifacts to Artifactory
+   :class-title: sd-fs-5
+   :class-container: sd-shadow-md
+
+   A committer must upload the binary release artifacts to Artifactory:
+
+   .. code-block:: Bash
+
+      # dev/release/post-02-binary.sh 0.1.0 0
+      dev/release/post-02-binary.sh <version> <rc number>
+
+.. dropdown:: Update website
+   :class-title: sd-fs-5
+   :class-container: sd-shadow-md
+
+   .. warning:: TODO
+
+.. dropdown:: Upload wheels/sdist to PyPI
+   :class-title: sd-fs-5
+   :class-container: sd-shadow-md
+
+   We use the twine tool to upload wheels to PyPI:
+
+   .. code-block:: Bash
+
+      # dev/release/post-03-python.sh 10.0.0
+      dev/release/post-03-python.sh <version>
+
+.. dropdown:: Publish Maven packages
+   :class-title: sd-fs-5
+   :class-container: sd-shadow-md
+
+   - Logon to the Apache repository: https://repository.apache.org/#stagingRepositories
+   - Select the Arrow staging repository you created for RC: ``orgapachearrow-XXXX``
+   - Click the ``release`` button
+
+.. dropdown:: Update tags for Go modules
+   :class-title: sd-fs-5
+   :class-container: sd-shadow-md
+
+   .. code-block:: Bash
+
+      # dev/release/post-04-go.sh 10.0.0
+      dev/release/post-04-go.sh X.Y.Z
+
+.. dropdown:: Announce the new release
+   :class-title: sd-fs-5
+   :class-container: sd-shadow-md
+
+   Write a release announcement (see `example <https://lists.apache.org/thread/6rkjwvyjjfodrxffllh66pcqnp729n3k>`_) and send to announce@apache.org and dev@arrow.apache.org.
+
+   The announcement to announce@apache.org must be sent from your apache.org e-mail address to be accepted.
+
+.. dropdown:: Publish release blog post
+   :class-title: sd-fs-5
+   :class-container: sd-shadow-md
+
+   TODO
+
+.. dropdown:: Remove old artifacts
+   :class-title: sd-fs-5
+   :class-container: sd-shadow-md
+
+   Remove RC artifacts on https://dist.apache.org/repos/dist/dev/arrow/ and old release artifacts on https://dist.apache.org/repos/dist/release/arrow to follow `the ASF policy <https://infra.apache.org/release-download-pages.html#current-and-older-releases>`_:
+
+   .. code-block:: Bash
+
+      dev/release/post-05-remove-old-artifacts.sh

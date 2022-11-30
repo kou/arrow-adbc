@@ -94,7 +94,7 @@ main() {
 
         # commit to svn
         svn add "tmp/${tagrc}"
-        svn ci -m "Apache Arrow ${version} RC${rc}" "tmp/${tagrc}"
+        svn ci -m "Apache Arrow ADBC ${version} RC${rc}" "tmp/${tagrc}"
 
         # clean up
         rm -rf tmp
