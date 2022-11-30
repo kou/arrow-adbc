@@ -27,7 +27,7 @@ if [ "$#" -ne 1 ]; then
 fi
 
 version=$1
-version_tag="apache-arrow-${version}"
+version_tag="adbc-${version}"
 go_arrow_tag="go/v${version}"
 
 git tag "${go_arrow_tag}" "${version_tag}"
