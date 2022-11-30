@@ -780,8 +780,8 @@ class BinaryTask
     def release
       progress_label = "Releasing: #{release_base_path}"
       progress_reporter = ProgressReporter.new(progress_label)
-      rc_prefix = [rc_base_path, @rc_prefix].compact.join("/")
-      release_prefix = [release_base_path, @release_prefix].compact.join("/")
+      rc_prefix = ["adbc", rc_base_path, @rc_prefix].compact.join("/")
+      release_prefix = ["adbc", release_base_path, @release_prefix].compact.join("/")
       ArtifactoryClientPool.open(rc_prefix, @api_key) do |client_pool|
         thread_pool = ThreadPool.new(:artifactory) do |path, release_path|
           client_pool.pull do |client|
