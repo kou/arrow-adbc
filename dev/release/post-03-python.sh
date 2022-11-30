@@ -35,16 +35,18 @@ version=$1
 tmp=$(mktemp -d -t "arrow-post-python.XXXXX")
 base_url=${ARTIFACTORY_URL}/artifactory/arrow/adbc/python/${version}
 curl \
+  --show-error \
   --location \
   ${base_url} | \
-  grep -E -o "adbc_${version}[a-zA-Z0-9._-]*\\.(tar\\.gz|whl)" | \
+  grep -E -o "adbc_[^-]+-${version}[a-zA-Z0-9._-]*\\.(tar\\.gz|whl)" | \
   sort | \
   uniq | while read artifact; do
-  curl \
-    --fail \
-    --location \
-    --output ${tmp}/${artifact} \
-    ${base_url}/${artifact}
+    curl \
+        --fail \
+        --show-error \
+        --location \
+        --output ${tmp}/${artifact} \
+        ${base_url}/${artifact}
 done
 
 if [ ${TEST_PYPI} -gt 0 ]; then
