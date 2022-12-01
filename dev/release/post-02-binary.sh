@@ -21,58 +21,33 @@ set -e
 set -u
 set -o pipefail
 
-export LANG=C
-export LC_CTYPE=C
+main() {
+    local -r source_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    local -r source_top_dir="$( cd "${source_dir}/../../" && pwd )"
 
-SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    if [ "$#" -ne 2 ]; then
+        echo "Usage: $0 <version> <rc-num>"
+        exit 1
+    fi
 
-if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 <version> <rc-num>"
-  exit
-fi
+    local -r version="$1"
+    local -r rc_number="$2"
+    local -r tag="adbc-${version}"
 
-version=$1
-rc_number=$2
+    : ${REPOSITORY:="apache/arrow-adbc"}
 
-cd "${SOURCE_DIR}"
+    header "Publishing release ${version}"
 
-if [ ! -f .env ]; then
-  echo "You must create $(pwd)/.env"
-  echo "You can use $(pwd)/.env.example as template"
-  exit 1
-fi
-. .env
+    gh release edit \
+       --repo "${REPOSITORY}" \
+       "${tag}" \
+       --prerelease=false
+}
 
-. utils-binary.sh
+header() {
+    echo "============================================================"
+    echo "${1}"
+    echo "============================================================"
+}
 
-# By default upload all artifacts.
-# To deactivate one category, deactivate the category and all of its dependents.
-# To explicitly select one category, set UPLOAD_DEFAULT=0 UPLOAD_X=1.
-: ${UPLOAD_DEFAULT:=1}
-: ${UPLOAD_DOCS:=${UPLOAD_DEFAULT}}
-: ${UPLOAD_PYTHON:=${UPLOAD_DEFAULT}}
-
-rake_tasks=()
-if [ ${UPLOAD_DOCS} -gt 0 ]; then
-  rake_tasks+=(docs:release)
-fi
-if [ ${UPLOAD_PYTHON} -gt 0 ]; then
-  rake_tasks+=(python:release)
-fi
-rake_tasks+=(summary:release)
-
-tmp_dir=binary/tmp
-mkdir -p "${tmp_dir}"
-
-docker_run \
-  ./runner.sh \
-  rake \
-    "${rake_tasks[@]}" \
-    ARTIFACTORY_API_KEY="${ARTIFACTORY_API_KEY}" \
-    ARTIFACTS_DIR="${tmp_dir}/artifacts" \
-    DRY_RUN=${DRY_RUN:-no} \
-    GPG_KEY_ID="${GPG_KEY_ID}" \
-    MOCK_ARTIFACTORY_URL="${MOCK_ARTIFACTORY_URL:=}" \
-    RC=${rc_number} \
-    STAGING=${STAGING:-no} \
-    VERSION=${version}
+main "$@"

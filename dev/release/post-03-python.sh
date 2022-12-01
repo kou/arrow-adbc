@@ -17,45 +17,55 @@
 # specific language governing permissions and limitations
 # under the License.
 
-set -ex
+set -e
+set -u
 set -o pipefail
 
-SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-: ${TEST_PYPI:=0}
+main() {
+    local -r source_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    local -r source_top_dir="$( cd "${source_dir}/../../" && pwd )"
 
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 <version>"
-  exit
-fi
+    if [ "$#" -ne 2 ]; then
+        echo "Usage: $0 <version> <rc-num>"
+        exit 1
+    fi
 
-: ${ARTIFACTORY_URL:="https://apache.jfrog.io"}
+    local -r version="$1"
+    local -r rc_number="$2"
+    local -r tag="adbc-${version}"
 
-version=$1
+    : ${REPOSITORY:="apache/arrow-adbc"}
 
-tmp=$(mktemp -d -t "arrow-post-python.XXXXX")
-base_url=${ARTIFACTORY_URL}/artifactory/arrow/adbc/python/${version}
-curl \
-  --show-error \
-  --location \
-  ${base_url} | \
-  grep -E -o "adbc_[^-]+-${version}[a-zA-Z0-9._-]*\\.(tar\\.gz|whl)" | \
-  sort | \
-  uniq | while read artifact; do
-    curl \
-        --fail \
-        --show-error \
-        --location \
-        --output ${tmp}/${artifact} \
-        ${base_url}/${artifact}
-done
+    local -r tmp=$(mktemp -d -t "arrow-post-python.XXXXX")
 
-if [ ${TEST_PYPI} -gt 0 ]; then
-  TWINE_ARGS="--repository-url https://test.pypi.org/legacy/"
-fi
+    header "Downloading Python packages for ${version}"
 
-twine upload ${TWINE_ARGS} ${tmp}/*
+    gh release download \
+       --repo "${REPOSITORY}" \
+       "${tag}" \
+       --dir "${tmp}" \
+       --pattern "*.whl" \
+       --pattern "adbc_*.tar.gz" `# sdist`
 
-rm -rf "${tmp}"
+    header "Uploading Python packages for ${version}"
 
-echo "Success! The released PyPI packages are available here:"
-echo "  https://pypi.org/project/pyarrow/${version}"
+    if [ ${TEST_PYPI} -gt 0 ]; then
+        echo "Using test.pypi.org"
+        TWINE_ARGS="--repository-url https://test.pypi.org/legacy/"
+    fi
+
+    twine upload ${TWINE_ARGS} ${tmp}/*
+
+    rm -rf "${tmp}"
+
+    echo "Success! The released PyPI packages are available here:"
+    echo "  https://pypi.org/project/pyarrow/${version}"
+}
+
+header() {
+    echo "============================================================"
+    echo "${1}"
+    echo "============================================================"
+}
+
+main "$@"

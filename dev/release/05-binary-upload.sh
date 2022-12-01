@@ -21,76 +21,117 @@ set -e
 set -u
 set -o pipefail
 
-export LANG=C
-export LC_CTYPE=C
+main() {
+    local -r source_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    local -r source_top_dir="$( cd "${source_dir}/../../" && pwd )"
 
-SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    if [ "$#" -ne 2 ]; then
+        echo "Usage: $0 <version> <rc-num>"
+        exit 1
+    fi
 
-if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 <version> <rc-num>"
-  exit
-fi
+    local -r version="$1"
+    local -r rc_number="$2"
+    local -r tag="adbc-${version}"
+    local -r rc_branch="release-${version}-rc${rc_number}"
 
-version=$1
-rc_number=$2
+    : ${REPOSITORY:="apache/arrow-adbc"}
 
-version_with_rc="${version}-rc${rc_number}"
-package_dir="${SOURCE_DIR}/../../packages"
+    if [[ ! -f "${source_dir}/.env" ]]; then
+        echo "You must create ${source_dir}/.env"
+        echo "You can use ${source_dir}/.env.example as a template"
+    fi
 
-artifact_dir="${package_dir}/release-${version_with_rc}"
+    source "${source_dir}/.env"
 
-if [ ! -e "$artifact_dir" ]; then
-  echo "$artifact_dir does not exist"
-  exit 1
-fi
+    echo "Creating release ${version}"
 
-if [ ! -d "$artifact_dir" ]; then
-  echo "$artifact_dir is not a directory"
-  exit 1
-fi
+    local -r assets="${source_top_dir}/packages/${rc_branch}"
+    local -r release_notes=$(cz ch --dry-run "${tag}" --unreleased-version "ADBC Libraries ${version}")
 
-cd "${SOURCE_DIR}"
+    header "Release Notes"
+    echo "${release_notes}"
 
-if [ ! -f .env ]; then
-  echo "You must create $(pwd)/.env"
-  echo "You can use $(pwd)/.env.example as template"
-  exit 1
-fi
-. .env
+    gh release create \
+       --repo "${REPOSITORY}" \
+       "${tag}" \
+       --notes "${release_notes}" \
+       --prerelease \
+       --title "ADBC Libraries ${version}"
 
-. utils-binary.sh
+    header "Uploading assets: docs"
+    upload_assets "${tag}" "${assets}/docs/docs.tgz"
 
-# By default upload all artifacts.
-# To deactivate one category, deactivate the category and all of its dependents.
-# To explicitly select one category, set UPLOAD_DEFAULT=0 UPLOAD_X=1.
-: ${UPLOAD_DEFAULT:=1}
-: ${UPLOAD_DOCS:=${UPLOAD_DEFAULT}}
-: ${UPLOAD_PYTHON:=${UPLOAD_DEFAULT}}
+    header "Uploading assets: java"
+    upload_assets "${tag}" $(find "${assets}/java" -name '*.jar' -o -name '*.pom')
 
-rake_tasks=()
-if [ ${UPLOAD_DOCS} -gt 0 ]; then
-  rake_tasks+=(docs:rc)
-fi
-if [ ${UPLOAD_PYTHON} -gt 0 ]; then
-  rake_tasks+=(python:rc)
-fi
-rake_tasks+=(summary:rc)
+    header "Uploading assets: python"
+    # Must uniq because we build a none-any wheel across multiple platforms
+    upload_assets "${tag}" $(find "${assets}" -name '*.whl' | sort | uniq)
 
-tmp_dir=binary/tmp
-mkdir -p "${tmp_dir}"
-source_artifacts_dir="${tmp_dir}/artifacts"
-rm -rf "${source_artifacts_dir}"
-cp -a "${artifact_dir}" "${source_artifacts_dir}"
+    header "Uploading assets: source"
+    upload_assets "${tag}" \
+        "${source_top_dir}/adbc-${version}.tar.gz" \
+        "${source_top_dir}/adbc-${version}.tar.gz.asc" \
+        "${source_top_dir}/adbc-${version}.tar.gz.sha512"
+}
 
-docker_run \
-  ./runner.sh \
-  rake \
-    "${rake_tasks[@]}" \
-    ARTIFACTORY_API_KEY="${ARTIFACTORY_API_KEY}" \
-    ARTIFACTS_DIR="${tmp_dir}/artifacts" \
-    DRY_RUN=${DRY_RUN:-no} \
-    GPG_KEY_ID="${GPG_KEY_ID}" \
-    MOCK_ARTIFACTORY_URL="${MOCK_ARTIFACTORY_URL:=}" \
-    RC=${rc_number} \
-    STAGING=${STAGING:-no} \
-    VERSION=${version}
+header() {
+    echo "============================================================"
+    echo "${1}"
+    echo "============================================================"
+}
+
+sign_asset() {
+    local -r asset="$1"
+    local -r sigfile="${asset}.asc"
+
+    if [[ -f "${sigfile}" ]]; then
+        if env LANG=C gpg --verify "${sigfile}" "${asset}" >/dev/null 2>&1; then
+            echo "Valid signature at $(basename "${sigfile}"), skipping"
+            return
+        fi
+        rm "${sigfile}"
+    fi
+
+    gpg \
+        --armor \
+        --detach-sign \
+        --local-user "${GPG_KEY_ID}" \
+        --output "${sigfile}" \
+        "${asset}"
+    echo "Generated $(basename "${sigfile}")"
+}
+
+sum_asset() {
+    local -r asset="$1"
+    local -r sumfile="${asset}.sha512"
+
+    local -r digest=$(shasum --algorithm 512 "${asset}")
+    if [[ -f "${sumfile}" ]]; then
+        if [[ "${digest}" = $(cat "${sumfile}") ]]; then
+            echo "Valid digest at $(basename "${sumfile}"), skipping"
+            return
+        fi
+    fi
+
+    echo "${digest}" > "${sumfile}"
+    echo "Generated $(basename "${sumfile}")"
+}
+
+upload_assets() {
+    local -r tag="${1}"
+    shift 1
+
+    for asset in "$@"; do
+        sign_asset "${asset}"
+        sum_asset "${asset}"
+    done
+
+    gh release upload \
+       --repo "${REPOSITORY}" \
+       "${tag}" \
+       "$@"
+}
+
+main "$@"
