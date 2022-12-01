@@ -38,9 +38,7 @@ main() {
     fi
     local -r version="$1"
     local -r rc_number="$2"
-
-    local -r tag="adbc-${version}"
-    local -r rc_branch="release-${version}-rc${rc_number}"
+    local -r tag="adbc-${version}-rc${rc_number}"
 
     echo "Preparing source for tag ${tag}"
     local -r release_hash=$(cd "${source_top_dir}" && git rev-list --max-count=1 ${tag} --)
@@ -81,7 +79,7 @@ main() {
     if [[ "${SOURCE_UPLOAD}" -gt 0 ]]; then
         echo "Uploading to dist.apache.org"
 
-        local -r tagrc="${tag}-rc${rc_number}"
+        local -r tagrc="apache-arrow-${tag}"
 
         # check out the arrow RC folder
         svn co --depth=empty https://dist.apache.org/repos/dist/dev/arrow tmp

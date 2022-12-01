@@ -33,18 +33,11 @@ next_version=$2
 next_version_snapshot="${next_version}-SNAPSHOT"
 rc_number=$3
 
-release_tag="adbc-${version}"
-release_branch="release-${version}"
-release_candidate_branch="release-${version}-rc${rc_number}"
+release_candidate_tag="adbc-${version}-rc${rc_number}"
 
-if [ $(git tag -l "${release_tag}") ]; then
-    echo "Delete existing git tag $release_tag"
-    git tag -d "${release_tag}"
-fi
-
-if [[ $(git branch -l "${release_candidate_branch}") ]]; then
+if [[ $(git tag -l "${release_candidate_tag}") ]]; then
     next_rc_number=$(($rc_number+1))
-    echo "Branch ${release_candidate_branch} already exists, so create a new release candidate:"
+    echo "Tag ${release_candidate_tag} already exists, so create a new release candidate:"
     echo "1. Checkout the default branch for major releases and maint-<version> for patch releases."
     echo "2. Execute the script again with bumped RC number."
     echo "Commands:"
@@ -57,7 +50,7 @@ fi
 
 echo "Updating changelog for $version"
 # Update changelog
-cz ch --incremental --unreleased-version "${release_tag}"
+cz ch --incremental --unreleased-version "ADBC Libraries ${version} RC ${rc_number}"
 git add ${SOURCE_DIR}/../../CHANGELOG.md
 git commit -m "chore: update CHANGELOG.md for $version"
 
@@ -66,14 +59,9 @@ echo "Prepare release ${version} on tag ${release_tag}"
 update_versions "${version}" "${next_version}" "release"
 git commit -m "chore: update versions for ${version}"
 
-############################## Tag the Release ##############################
+######################### Tag the Release Candidate #########################
 
-git tag -a "${release_tag}" -m "ADBC Libraries ${version}"
-
-############################# Create the Branch #############################
-
-echo "Create local branch ${release_candidate_branch} for release candidate ${rc_number}"
-git branch ${release_candidate_branch}
+git tag -a "${release_candidate_tag}" -m "ADBC Libraries ${version} RC ${rc_number}"
 
 ########################## Update Snapshot Version ##########################
 
