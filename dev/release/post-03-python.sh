@@ -45,7 +45,7 @@ main() {
        "${tag}" \
        --dir "${tmp}" \
        --pattern "*.whl" \
-       --pattern "adbc_*.tar.gz" `# sdist`
+       --pattern "adbc_*.tar.gz" # sdist
 
     header "Uploading Python packages for ${version}"
 
