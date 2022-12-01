@@ -40,11 +40,7 @@ Preparing for the release
 
 Some steps of the release require being a committer or a PMC member.
 
-- A GPG key in the Apache Web of Trust to sign artifacts. This will have to be cross signed by other Apache committers/PMC members. If you have multiple GPG keys, you must set the correct GPG key ID in ``~/.gnupg/gpg.conf`` by adding:
-
-  .. code-block::
-
-      default-key ${YOUR_GPG_KEY_ID}
+- A GPG key in the Apache Web of Trust to sign artifacts. This will have to be cross signed by other Apache committers/PMC members. You must set your GPG key ID in ``dev/release/.env`` (see ``dev/release/.env.example`` for a template).
 
 - The GPG key needs to be added to this `SVN repo <https://dist.apache.org/repos/dist/dev/arrow/>`_ and `this one <https://dist.apache.org/repos/dist/release/arrow/>`_.
 - Configure Maven to `publish artifacts to Apache repositories <http://www.apache.org/dev/publishing-maven-artifacts.html>`_. You will need to `setup a master password <https://maven.apache.org/guides/mini/guide-encryption.html>`_ at ``~/.m2/settings-security.xml`` and ``settings.xml`` as specified on the `Apache guide <http://www.apache.org/dev/publishing-maven-artifacts.html#dev-env>`_. It can be tested with the following command:
@@ -62,8 +58,6 @@ Some steps of the release require being a committer or a PMC member.
      mamba create -n adbc -c conda-forge --file ci/conda_env_dev.txt
 
    This will install two tools used in the release process: ``commitizen`` (generates changelog from commit messages) and ``gh`` (submit jobs/download artifacts).
-
-- Have Docker and docker-compose installed.
 
 Before creating a Release Candidate
 ===================================

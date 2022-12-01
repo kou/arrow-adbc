@@ -25,7 +25,7 @@ echo "Remove all RCs"
 dev_base_url=https://dist.apache.org/repos/dist/dev/arrow
 old_rcs=$(
   svn ls ${dev_base_url}/ | \
-  grep -E '^adbc-[0-9]' | \
+  grep -E '^apache-arrow-adbc-[0-9]' | \
   sort --version-sort
 )
 for old_rc in $old_rcs; do
@@ -40,7 +40,7 @@ echo "Keep only the latest release"
 release_base_url=https://dist.apache.org/repos/dist/release/arrow
 old_releases=$(
   svn ls ${release_base_url}/ | \
-  grep -E '^adbc-[0-9]' | \
+  grep -E '^apache-arrow-adbc-[0-9]' | \
   sort --version-sort --reverse | \
   tail -n +2 | \
   tac

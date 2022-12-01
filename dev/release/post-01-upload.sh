@@ -26,8 +26,8 @@ main() {
     local -r version="$1"
     local -r rc_number="$2"
 
-    rc_id="adbc-${version}-rc${rc}"
-    release_id="adbc-${version}"
+    rc_id="apache-arrow-adbc-${version}-rc${rc}"
+    release_id="pache-arrow-adbc-${version}"
     echo "Copying dev/ to release/"
     svn \
         cp \
