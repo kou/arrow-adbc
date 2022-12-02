@@ -75,17 +75,15 @@ Creating a Release Candidate
 
 These are the different steps that are required to create a Release Candidate.
 
-For the initial Release Candidate, we will create a maintenance branch from master.
-Follow up Release Candidates will update the maintenance branch by cherry-picking
-specific commits.
+Release candidates are created by tagging a commit.
 
-We have implemented a Feature Freeze policy between Release Candidates.
-This means that, in general, we should only add bug fixes between Release Candidates.
-In rare cases, critical features can be added between Release Candidates, if
-there is community consensus.
+We have implemented a Feature Freeze policy between Release Candidates.  This
+means that, in general, we should only add bug fixes between Release
+Candidates.  In rare cases, critical features can be added between Release
+Candidates, if there is community consensus.
 
-Create the Release Candidate branch from the updated maintenance branch
------------------------------------------------------------------------
+Create the Release Candidate tag
+--------------------------------
 
 .. code-block::
 
@@ -97,7 +95,7 @@ Create the Release Candidate branch from the updated maintenance branch
     # so for the first RC this would be: dev/release/01-prepare.sh 4.0.0 5.0.0 0
     dev/release/01-prepare.sh <version> <next-version> <rc-number>
 
-    git push -u apache adbc-<version>-rc<rc-number>
+    git push --tag apache adbc-<version>-rc<rc-number>
 
 Build source and binaries and submit them
 -----------------------------------------
