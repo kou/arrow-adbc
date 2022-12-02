@@ -107,19 +107,13 @@ Build source and binaries and submit them
     # Build the source release tarball and create Pull Request with verification tasks
     dev/release/02-source.sh <version> <rc-number>
 
-    # Wait for the packaging jobs to finish
-    dev/release/03-binary-wait.sh <version> <rc-number>
-
     # Download the produced binaries, sign them, and add the
     # signatures to the GitHub release
     #
     # On macOS the only way I could get this to work was running "echo
     # "UPDATESTARTUPTTY" | gpg-connect-agent" before running this
     # comment otherwise I got errors referencing "ioctl" errors.
-    dev/release/04-binary-sign.sh <version> <rc-number>
-
-    # Sign and upload the binaries
-    dev/release/05-binary-upload.sh <version> <rc-number>
+    dev/release/03-binary-sign.sh <version> <rc-number>
 
     # Sign and upload the Java artifacts
     #
