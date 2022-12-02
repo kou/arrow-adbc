@@ -120,10 +120,10 @@ Build source and binaries and submit them
     # Note that you need to press the "Close" button manually by Web interface
     # after you complete the script:
     #   https://repository.apache.org/#stagingRepositories
-    dev/release/06-java-upload.sh <version> <rc-number>
+    dev/release/04-java-upload.sh <version> <rc-number>
 
     # Start verifications for binaries and wheels
-    dev/release/07-binary-verify.sh <version> <rc-number>
+    dev/release/05-binary-verify.sh <version> <rc-number>
 
 Verify the Release
 ------------------

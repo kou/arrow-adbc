@@ -24,7 +24,7 @@ main() {
 
     local -r version="$1"
     local -r rc_number="$2"
-    local -r rc_branch="release-${version}-rc${rc_number}"
+    local -r tag="adbc-${version}-rc${rc_number}"
 
     : ${REPOSITORY:="apache/arrow-adbc"}
 
@@ -32,7 +32,7 @@ main() {
 
     gh workflow run \
        --repo "${REPOSITORY}" \
-       --ref "${rc_branch}" \
+       --ref "${tag}" \
        verify.yml \
        --raw-field version="${version}" \
        --raw-field rc="${rc_number}"
@@ -45,7 +45,7 @@ main() {
                     --repo "${REPOSITORY}" \
                     --workflow=verify.yml \
                     --json 'databaseId,event,headBranch,status' \
-                    --jq ".[] | select(.event == \"workflow_dispatch\" and .headBranch == \"${rc_branch}\" and .status != \"completed\") | .databaseId")
+                    --jq ".[] | select(.event == \"workflow_dispatch\" and .headBranch == \"${tag}\" and .status != \"completed\") | .databaseId")
         sleep 1
     done
 
