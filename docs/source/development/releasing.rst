@@ -97,10 +97,7 @@ Create the Release Candidate branch from the updated maintenance branch
     # so for the first RC this would be: dev/release/01-prepare.sh 4.0.0 5.0.0 0
     dev/release/01-prepare.sh <version> <next-version> <rc-number>
 
-    # Push the release tag (for RC1 or later the --force flag is required)
-    git push -u apache adbc-<version>
-    # Push the release candidate branch
-    git push -u apache release-<version>-rc<rc-number>
+    git push -u apache adbc-<version>-rc<rc-number>
 
 Build source and binaries and submit them
 -----------------------------------------
@@ -110,20 +107,18 @@ Build source and binaries and submit them
     # Build the source release tarball and create Pull Request with verification tasks
     dev/release/02-source.sh <version> <rc-number>
 
-    # Submit binary tasks using crossbow, the command will output the crossbow build id
-    dev/release/03-binary-submit.sh <version> <rc-number>
+    # Wait for the packaging jobs to finish
+    dev/release/03-binary-wait.sh <version> <rc-number>
 
-    # Wait for the crossbow jobs to finish
-    archery crossbow status <crossbow-build-id>
-
-    # Download the produced binaries
-    # This will download packages to a directory called packages/release-<version>-rc<rc-number>
-    dev/release/04-binary-download.sh <version> <rc-number>
+    # Download the produced binaries, sign them, and add the
+    # signatures to the GitHub release
+    #
+    # On macOS the only way I could get this to work was running "echo
+    # "UPDATESTARTUPTTY" | gpg-connect-agent" before running this
+    # comment otherwise I got errors referencing "ioctl" errors.
+    dev/release/04-binary-sign.sh <version> <rc-number>
 
     # Sign and upload the binaries
-    #
-    # On macOS the only way I could get this to work was running "echo "UPDATESTARTUPTTY" | gpg-connect-agent" before running this comment
-    # otherwise I got errors referencing "ioctl" errors.
     dev/release/05-binary-upload.sh <version> <rc-number>
 
     # Sign and upload the Java artifacts

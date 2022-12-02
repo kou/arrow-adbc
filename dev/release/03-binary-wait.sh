@@ -20,8 +20,6 @@ set -ex
 
 main() {
     local -r source_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-    local -r source_top_dir="$( cd "${source_dir}/../../" && pwd )"
-    pushd "${source_top_dir}"
 
     if [ "$#" -ne 2 ]; then
         echo "Usage: $0 <version> <rc-num>"
@@ -30,18 +28,11 @@ main() {
 
     local -r version="$1"
     local -r rc_number="$2"
-    local -r tag="adbc-${version}"
-    local -r rc_branch="release-${version}-rc${rc_number}"
+    local -r tag="adbc-${version}-rc${rc_number}"
 
     : ${REPOSITORY:="apache/arrow-adbc"}
 
-    echo "Starting GitHub Actions workflow on ${REPOSITORY}:${rc_branch}"
-
-    gh workflow run \
-       --repo "${REPOSITORY}" \
-       --ref "${rc_branch}" \
-       packaging-wheels.yml \
-       --raw-field upload_artifacts=false
+    echo "Looking for GitHub Actions workflow on ${REPOSITORY}:${tag}"
 
     local run_id=""
     while [[ -z "${run_id}" ]]
@@ -51,14 +42,13 @@ main() {
                     --repo "${REPOSITORY}" \
                     --workflow=packaging-wheels.yml \
                     --json 'databaseId,event,headBranch,status' \
-                    --jq ".[] | select(.event == \"workflow_dispatch\" and .headBranch == \"${rc_branch}\" and .status != \"completed\") | .databaseId")
+                    --jq ".[] | select(.event == \"push\" and .headBranch == \"${tag}\") | .databaseId")
         sleep 1
     done
 
-    echo "Started GitHub Actions workflow with ID: ${run_id}"
-    echo "You can wait for completion via: gh run watch --repo ${REPOSITORY} ${run_id}"
+    echo "Found GitHub Actions workflow with ID: ${run_id}"
 
-    popd
+    gh run watch --repo ${REPOSITORY} ${run_id}
 }
 
 main "$@"
