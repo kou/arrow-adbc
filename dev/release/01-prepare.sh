@@ -54,7 +54,7 @@ cz ch --incremental --unreleased-version "ADBC Libraries ${version} RC ${rc_numb
 git add ${SOURCE_DIR}/../../CHANGELOG.md
 git commit -m "chore: update CHANGELOG.md for $version"
 
-echo "Prepare release ${version} on tag ${release_tag}"
+echo "Prepare release ${version} on tag ${release_candidate_tag}"
 
 update_versions "${version}" "${next_version}" "release"
 git commit -m "chore: update versions for ${version}"
@@ -67,3 +67,6 @@ git tag -a "${release_candidate_tag}" -m "ADBC Libraries ${version} RC ${rc_numb
 
 update_versions "${version}" "${next_version}" "snapshot"
 git commit -m "chore: update versions for ${next_version_snapshot}"
+
+echo "Created release candidate tag: ${release_candidate_tag}"
+echo "Push this tag before continuing!"
