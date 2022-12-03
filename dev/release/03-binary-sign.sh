@@ -118,7 +118,7 @@ sum_asset() {
     local -r asset="$1"
     local -r sumfile="${asset}.sha512"
 
-    local -r digest=$(shasum --algorithm 512 "${asset}")
+    local -r digest=$(cd $(dirname "${asset}"); shasum --algorithm 512 $(basename "${asset}"))
     if [[ -f "${sumfile}" ]]; then
         if [[ "${digest}" = $(cat "${sumfile}") ]]; then
             echo "Valid digest at $(basename "${sumfile}"), skipping"
