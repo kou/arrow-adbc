@@ -32,11 +32,11 @@ main() {
     fi
 
     local -r arrow_dir="$(cd "$1" && pwd)"
-    local -r version="$1"
-    local -r rc_number="$2"
+    local -r version="$2"
+    local -r rc_number="$3"
     local -r tag="adbc-${version}-rc${rc_number}"
 
-    : ${ADBC_REPOSITORY:="apache/arrow-adbc"}
+    : ${REPOSITORY:="apache/arrow-adbc"}
 
     export ARROW_ARTIFACTS_DIR="$(pwd)/packages/${tag}/java"
     rm -rf "${ARROW_ARTIFACTS_DIR}"
@@ -47,7 +47,7 @@ main() {
        --pattern "*.jar.asc" \
        --pattern "*.pom" \
        --pattern "*.pom.asc" \
-       --repo "${ADBC_REPOSITORY}" \
+       --repo "${REPOSITORY}" \
        "${tag}"
 
     export UPLOAD_FORCE_SIGN=0
