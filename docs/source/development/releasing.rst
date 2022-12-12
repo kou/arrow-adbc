@@ -186,7 +186,8 @@ Be sure to go through on the following checklist:
    :class-title: sd-fs-5
    :class-container: sd-shadow-md
 
-   .. warning:: TODO
+   This is done automatically when the tags are pushed. Please check that the
+   `nightly-website.yml`_ workflow succeeded.
 
 .. dropdown:: Upload wheels/sdist to PyPI
    :class-title: sd-fs-5
@@ -239,3 +240,5 @@ Be sure to go through on the following checklist:
    .. code-block:: Bash
 
       dev/release/post-05-remove-old-artifacts.sh
+
+.. _nightly-website.yml: https://github.com/apache/arrow-adbc/actions/workflows/nightly-website.yml

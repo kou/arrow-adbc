@@ -21,6 +21,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'adbc-*'
   workflow_dispatch: {}
 
 jobs:
@@ -44,8 +46,9 @@ jobs:
           path: |
             docs/build/html
 
-  publish:
-    name: "Publish Website"
+  publish-dev:
+    name: "Publish Dev Website"
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: [build]
     steps:
@@ -69,5 +72,43 @@ jobs:
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
           git add --force dev/
+          git commit -m "publish documentation" --allow-empty
+          git push origin asf-site:asf-site
+
+  publish-tag:
+    name: "Publish Tag Website"
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          # NOTE: needed to push at the end
+          persist-credentials: true
+          ref: asf-site
+      - name: Add tagged docs
+        uses: actions/download-artifact@v3
+        with:
+          name: docs
+          path: temp
+      - name: Determine Path
+        id: determine-path
+        run: |
+          regex='^refs/tags/adbc-([0-9]+\.[0-9]+\.[0-9]+)(-rc[0-9]+)?$'
+          if [[ ${{ github.ref }} =~ $regex ]]; then
+            mv temp ${BASH_REMATCH[1]}
+            git add --force ${BASH_REMATCH[1]}
+            ls -laR ${BASH_REMATCH[1]}
+          else
+            exit 1
+          fi
+      - name: Build
+        shell: bash
+        run: |
+      - name: Push changes to asf-site branch
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
           git commit -m "publish documentation" --allow-empty
           git push origin asf-site:asf-site
