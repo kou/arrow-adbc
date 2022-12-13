@@ -64,11 +64,11 @@ Before creating a Release Candidate
 
 .. code-block::
 
-    # Setup gpg agent for signing artifacts
-    source dev/release/setup-gpg-agent.sh
+   # Setup gpg agent for signing artifacts
+   source dev/release/setup-gpg-agent.sh
 
-    # Activate conda environment
-    mamba activate adbc
+   # Activate conda environment
+   mamba activate adbc
 
 Creating a Release Candidate
 ============================
@@ -84,20 +84,51 @@ This means that, in general, we should only add bug fixes between Release Candid
 In rare cases, critical features can be added between Release Candidates, if
 there is community consensus.
 
+Create or update the corresponding maintenance branch
+-----------------------------------------------------
+
+.. tab-set::
+
+   .. tab-item:: Initial Release Candidate
+
+      .. code-block::
+
+         # Execute the following from an up to date master branch.
+         # This will create a branch locally called maint-X.Y.Z.
+         # X.Y.Z corresponds with the Major, Minor and Patch version number
+         # of the release respectively. As an example 9.0.0
+         git branch maint-X.Y.Z
+         # Push the maintenance branch to the remote repository
+         git push -u apache maint-X.Y.Z
+
+   .. tab-item:: Follow up Release Candidates
+
+      .. code-block::
+
+         # First cherry-pick any commits by hand.
+         git switch maint-X.Y.Z
+         git cherry-pick ...
+         # Push the updated maintenance branch to the remote repository
+         git push -u apache maint-X.Y.Z
+
 Create the Release Candidate branch from the updated maintenance branch
 -----------------------------------------------------------------------
 
 .. code-block::
 
-    # The following script will create a branch for the Release Candidate,
-    # place the necessary commits updating the version number and changelog, and then create a git tag
-    # on OSX use gnu-sed with homebrew: brew install gnu-sed (and export to $PATH)
-    #
-    # <rc-number> starts at 0 and increments every time the Release Candidate is burned
-    # so for the first RC this would be: dev/release/01-prepare.sh 4.0.0 5.0.0 0
-    dev/release/01-prepare.sh <version> <next-version> <rc-number>
+   # Start from the updated maintenance branch.
+   git switch maint-X.Y.Z
 
-    git push -u apache adbc-<version>-rc<rc-number>
+   # The following script will create a branch for the Release Candidate,
+   # place the necessary commits updating the version number and changelog, and then create a git tag
+   # on OSX use gnu-sed with homebrew: brew install gnu-sed (and export to $PATH)
+   #
+   # <rc-number> starts at 0 and increments every time the Release Candidate is burned
+   # so for the first RC this would be: dev/release/01-prepare.sh 4.0.0 5.0.0 0
+
+   dev/release/01-prepare.sh <version> <next-version> <rc-number>
+
+   git push -u apache adbc-<version>-rc<rc-number>
 
 Build source and binaries and submit them
 -----------------------------------------
@@ -240,5 +271,14 @@ Be sure to go through on the following checklist:
    .. code-block:: Bash
 
       dev/release/post-05-remove-old-artifacts.sh
+
+.. dropdown:: Bump versions
+   :class-title: sd-fs-5
+   :class-container: sd-shadow-md
+
+   .. code-block:: Bash
+
+      # dev/release/post-06-bump-versions.sh 0.1.0 0.2.0
+      dev/release/post-06-bump-versions.sh <version> <next_version>
 
 .. _nightly-website.yml: https://github.com/apache/arrow-adbc/actions/workflows/nightly-website.yml

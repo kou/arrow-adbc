@@ -38,10 +38,10 @@ release_candidate_tag="adbc-${version}-rc${rc_number}"
 if [[ $(git tag -l "${release_candidate_tag}") ]]; then
     next_rc_number=$(($rc_number+1))
     echo "Tag ${release_candidate_tag} already exists, so create a new release candidate:"
-    echo "1. Checkout the default branch for major releases and maint-<version> for patch releases."
+    echo "1. Create or checkout maint-<version>."
     echo "2. Execute the script again with bumped RC number."
     echo "Commands:"
-    echo "   git checkout main"
+    echo "   git checkout maint-${version}"
     echo "   dev/release/01-prepare.sh ${version} ${next_version} ${next_rc_number}"
     exit 1
 fi
@@ -62,11 +62,6 @@ git commit -m "chore: update versions for ${version}"
 ######################### Tag the Release Candidate #########################
 
 git tag -a "${release_candidate_tag}" -m "ADBC Libraries ${version} RC ${rc_number}"
-
-########################## Update Snapshot Version ##########################
-
-update_versions "${version}" "${next_version}" "snapshot"
-git commit -m "chore: update versions for ${next_version_snapshot}"
 
 echo "Created release candidate tag: ${release_candidate_tag}"
 echo "Push this tag before continuing!"
