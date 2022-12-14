@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-set -e
+set -eu
 
 main() {
     local -r source_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
