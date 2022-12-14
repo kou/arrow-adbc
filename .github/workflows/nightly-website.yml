@@ -101,6 +101,32 @@ jobs:
       - name: Build
         shell: bash
         run: |
+          # Regenerate the version list
+          pip install sphobjinv
+          rm -rf versions.txt
+          touch versions.txt
+          for inv in */objects.inv; do
+              echo "$(dirname $inv);$(sphobjinv convert json $inv - | jq -r .version)" >> versions.txt
+          done
+          git add --force versions.txt
+
+          latest_docs=$(cat versions.txt | grep -E ';[0-9]+\.[0-9]+\.[0-9]+$' | sort -t ';' --version-sort | tail -n1)
+          latest_dir=$(echo $latest_docs | awk -F';' '{print $1}')
+          latest_version=$(echo $latest_docs | awk -F';' '{print $2}')
+          # Add an index.html
+          cat > index.html << EOF
+          <!DOCTYPE html>
+          <meta http-equiv="Refresh" content="0; url=$latest_dir/index.html">
+          EOF
+          git add -f index.html
+
+          # Add latest/
+          mkdir -p latest/
+          cat > latest/index.html << EOF
+          <!DOCTYPE html>
+          <meta http-equiv="Refresh" content="0; url=../$latest_dir/index.html">
+          EOF
+          git add -f latest/index.html
       - name: Push changes to asf-site branch
         run: |
           git config --global user.name 'github-actions[bot]'
