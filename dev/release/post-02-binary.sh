@@ -43,7 +43,7 @@ main() {
        "${tag}" \
        --title="ADBC Libraries ${version}" \
        --prerelease=false \
-       --tag="adbc-${version}"
+       --tag="apache-arrow-adbc-${version}"
 }
 
 header() {
