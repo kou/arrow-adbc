@@ -35,23 +35,28 @@ update_versions() {
   local major_version=${version%%.*}
 
   pushd "${ADBC_DIR}/c/"
-  sed -i -E "s/set\(ADBC_VERSION \".+\"\)/set(ADBC_VERSION \"${version}\")/g" cmake_modules/AdbcDefines.cmake
+  sed -i.bak -E "s/set\(ADBC_VERSION \".+\"\)/set(ADBC_VERSION \"${version}\")/g" cmake_modules/AdbcDefines.cmake
+  rm cmake_modules/AdbcDefines.cmake.bak
   git add cmake_modules/AdbcDefines.cmake
   popd
 
-  sed -i -E "s/release = \".+\"/release = \"${docs_version}\"/g" "${ADBC_DIR}/docs/source/conf.py"
+  sed -i.bak -E "s/release = \".+\"/release = \"${docs_version}\"/g" "${ADBC_DIR}/docs/source/conf.py"
+  rm "${ADBC_DIR}/docs/source/conf.py.bak"
   git add "${ADBC_DIR}/docs/source/conf.py"
 
   pushd "${ADBC_DIR}/java/"
   mvn versions:set "-DnewVersion=${version}"
   find . -type f -name pom.xml.versionsBackup -delete
-  sed -i -E "s|<adbc.version>.+</adbc.version>|<adbc.version>${version}</adbc.version>|g" pom.xml
+  sed -i.bak -E "s|<adbc.version>.+</adbc.version>|<adbc.version>${version}</adbc.version>|g" pom.xml
+  rm pom.xml.bak
   git add "pom.xml" "**/pom.xml"
   popd
 
-  sed -i -E "s/version: '.+'/release = '${version}'/g" "${ADBC_DIR}/glib/meson.build"
+  sed -i.bak -E "s/version: '.+'/release = '${version}'/g" "${ADBC_DIR}/glib/meson.build"
+  rm "${ADBC_DIR}/glib/meson.build.bak"
   git add "${ADBC_DIR}/glib/meson.build"
 
-  sed -i -E "s/VERSION = \".+\"/VERSION = \"${version}\"/g" "${ADBC_DIR}/ruby/lib/adbc/version.rb"
+  sed -i.bak -E "s/VERSION = \".+\"/VERSION = \"${version}\"/g" "${ADBC_DIR}/ruby/lib/adbc/version.rb"
+  rm "${ADBC_DIR}/ruby/lib/adbc/version.rb.bak"
   git add "${ADBC_DIR}/ruby/lib/adbc/version.rb"
 }
