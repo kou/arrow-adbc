@@ -128,7 +128,7 @@ Create the Release Candidate branch from the updated maintenance branch
 
    dev/release/01-prepare.sh <version> <next-version> <rc-number>
 
-   git push -u apache adbc-<version>-rc<rc-number>
+   git push -u apache apache-arrow-adbc-<version>-rc<rc-number>
 
 Build source and binaries and submit them
 -----------------------------------------
@@ -200,7 +200,7 @@ Be sure to go through on the following checklist:
 
       # dev/release/post-01-upload.sh 0.1.0 0
       dev/release/post-01-upload.sh <version> <rc>
-      git push --tag apache adbc-<version>
+      git push --tag apache apache-arrow-adbc-<version>
 
 .. dropdown:: Create the final GitHub release
    :class-title: sd-fs-5
