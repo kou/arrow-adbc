@@ -103,7 +103,7 @@ jobs:
         run: |
           # Regenerate the version list
           pip install sphobjinv
-          rm -rf versions.txt
+          rm -f versions.txt
           touch versions.txt
           for inv in */objects.inv; do
               echo "$(dirname $inv);$(sphobjinv convert json $inv - | jq -r .version)" >> versions.txt
