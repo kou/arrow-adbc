@@ -91,11 +91,9 @@ jobs:
       - name: Determine Path
         id: determine-path
         run: |
-          pip install versjon
           regex='^refs/tags/apache-arrow-adbc-([0-9]+\.[0-9]+\.[0-9]+)(-rc[0-9]+)?$'
           if [[ ${{ github.ref }} =~ $regex ]]; then
             mv temp ${BASH_REMATCH[1]}
-            versjon
             git add --force .
           else
             exit 1
