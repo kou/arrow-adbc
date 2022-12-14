@@ -33,7 +33,7 @@ next_version=$2
 next_version_snapshot="${next_version}-SNAPSHOT"
 rc_number=$3
 
-release_candidate_tag="adbc-${version}-rc${rc_number}"
+release_candidate_tag="apache-arrow-adbc-${version}-rc${rc_number}"
 
 if [[ $(git tag -l "${release_candidate_tag}") ]]; then
     next_rc_number=$(($rc_number+1))

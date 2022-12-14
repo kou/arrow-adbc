@@ -32,7 +32,7 @@ main() {
 
     local -r version="$1"
     local -r rc_number="$2"
-    local -r tag="adbc-${version}-rc${rc_number}"
+    local -r tag="apache-arrow-adbc-${version}-rc${rc_number}"
 
     : ${REPOSITORY:="apache/arrow-adbc"}
 

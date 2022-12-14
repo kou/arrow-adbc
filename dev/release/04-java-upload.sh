@@ -34,7 +34,7 @@ main() {
     local -r arrow_dir="$(cd "$1" && pwd)"
     local -r version="$2"
     local -r rc_number="$3"
-    local -r tag="adbc-${version}-rc${rc_number}"
+    local -r tag="apache-arrow-adbc-${version}-rc${rc_number}"
 
     : ${REPOSITORY:="apache/arrow-adbc"}
 

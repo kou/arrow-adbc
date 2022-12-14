@@ -30,7 +30,7 @@ main() {
 
     local -r version="$1"
     local -r rc_number="$2"
-    local -r tag="adbc-${version}-rc${rc_number}"
+    local -r tag="apache-arrow-adbc-${version}-rc${rc_number}"
 
     : ${REPOSITORY:="apache/arrow-adbc"}
 
@@ -74,6 +74,15 @@ main() {
        "${tag}" \
        --repo "${REPOSITORY}" \
        --notes "${release_notes}"
+
+    header "Upload signed tarballs"
+    gh release upload \
+       --repo "${REPOSITORY}" \
+       "${tag}" \
+       "${tag}.tar.gz" \
+       "${tag}.tar.gz.asc" \
+       "${tag}.tar.gz.sha256" \
+       "${tag}.tar.gz.sha512"
 
     header "Upload signatures for Java"
     upload_asset_signatures "${tag}" $(find "${download_dir}" -type f \( -name '*.jar' -or -name '*.pom' \))

@@ -25,7 +25,7 @@ main() {
     fi
     local -r version="$1"
     local -r rc_number="$2"
-    local -r tag="adbc-${version}-rc${rc_number}"
+    local -r tag="apache-arrow-adbc-${version}-rc${rc_number}"
 
     rc_id="apache-arrow-adbc-${version}-rc${rc_number}"
     release_id="apache-arrow-adbc-${version}"
@@ -37,11 +37,11 @@ main() {
         https://dist.apache.org/repos/dist/release/arrow/${release_id}
 
     echo "Create final tag"
-    git tag -a "adbc-${version}" -m "ADBC Libraries ${version}" "${tag}^{}"
+    git tag -a "apache-arrow-adbc-${version}" -m "ADBC Libraries ${version}" "${tag}^{}"
 
     echo "Success! The release is available here:"
     echo "  https://dist.apache.org/repos/dist/release/arrow/${release_id}"
-    echo "Please push the tag adbc-${version}!"
+    echo "Please push the tag apache-arrow-adbc-${version}!"
 }
 
 main "$@"
