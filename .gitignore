@@ -16,10 +16,10 @@
 # under the License.
 
 # Release artifacts
-adbc-*.tar.gz
-adbc-*.tar.gz.asc
-adbc-*.tar.gz.sha256
-adbc-*.tar.gz.sha512
+apache-arrow-adbc-*.tar.gz
+apache-arrow-adbc-*.tar.gz.asc
+apache-arrow-adbc-*.tar.gz.sha256
+apache-arrow-adbc-*.tar.gz.sha512
 apache-rat-*.jar
 dev/release/.env
 filtered_rat.txt
